@@ -1,0 +1,41 @@
+from django.core.mail import send_mail
+from django.contrib.auth.views import LogoutView
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
+from django.conf import settings
+from django.contrib.auth import login
+
+from users.forms import UserRegisterForm
+from users.models import CustomUser
+
+class UserLogoutView(LogoutView):
+    next_page = reverse_lazy('service:index')
+
+
+
+class UserCreateView(CreateView):
+    model = CustomUser
+    form_class = UserRegisterForm
+    template_name = "users/users_form.html"
+    success_url = reverse_lazy("users:login")
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        login(self.request, self.object)
+
+        self.send_welcome_email(self.object.email)
+
+        return response
+
+    def send_welcome_email(self, user_email):
+        subject = 'Добро пожаловать в наш сервис'
+        message = 'Спасибо, что зарегистрировались в нашем сервисе!'
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user_email],
+        )
+
+
