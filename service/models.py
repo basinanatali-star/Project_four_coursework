@@ -1,17 +1,39 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
+from django.conf import settings
 
 
 class Client(models.Model):
-    email = models.EmailField(unique=True, verbose_name="Email")
-    username = models.CharField(max_length=150, verbose_name='Ф.И.О.',
-                                blank=True, null=True, help_text="Введите ФИО")
-    comment = models.TextField(max_length=255, verbose_name="Комментарий",
-                               blank=True, null=True, help_text="Ваш комментарий")
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="clients",
+        verbose_name="Владелец",
+        null=True,
+        blank=True,
+    )
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    email = models.EmailField(
+        unique=True,
+        verbose_name="Email",
+    )
+
+    username = models.CharField(
+        max_length=150,
+        verbose_name="Ф.И.О.",
+        blank=True,
+        null=True,
+        help_text="Введите ФИО",
+    )
+
+    comment = models.TextField(
+        max_length=255,
+        verbose_name="Комментарий",
+        blank=True,
+        null=True,
+        help_text="Ваш комментарий",
+    )
 
     class Meta:
         verbose_name = "Клиент"
@@ -20,11 +42,12 @@ class Client(models.Model):
     def __str__(self):
         return self.email
 
+
 class Message(models.Model):
     topic = models.CharField(max_length=150, verbose_name='Тема письма',
-                             blank=True, null=True, help_text="Пожалуйста, введите тему сообщения")
+                             help_text="Пожалуйста, введите тему сообщения")
     text = models.TextField(max_length=255, verbose_name="Тело письма",
-                            blank=True, null=True, help_text="Пожалуйста, введите текст Вашего сообщения")
+                            help_text="Пожалуйста, введите текст Вашего сообщения")
 
     def __str__(self):
         return f" {self.topic}"
@@ -73,9 +96,7 @@ class Mailing(models.Model):
         if self.start_time and self.end_time:
             if self.start_time >= self.end_time:
                 raise ValidationError({
-                    "end_time": (
-                        "Дата окончания должна быть позже даты начала."
-                    )
+                    "end_time": "Дата окончания должна быть позже даты начала."
                 })
 
         if self.start_time and self.start_time < timezone.now():
@@ -83,23 +104,77 @@ class Mailing(models.Model):
                 "start_time": "Дата начала не может быть в прошлом."
             })
 
-    def update_status(self):
+    @property
+    def current_status(self):
+        """Возвращает актуальный статус рассылки."""
         now = timezone.now()
 
         if now < self.start_time:
-            new_status = "Создана"
+            return "Создана"
         elif now <= self.end_time:
-            new_status = "Запущена"
+            return "Запущена"
         else:
-            new_status = "Завершена"
+            return "Завершена"
+
+    def update_status(self):
+        """Сохраняет актуальный статус в базе данных."""
+        new_status = self.current_status
 
         if self.status != new_status:
             self.status = new_status
             self.save(update_fields=["status"])
 
     def __str__(self):
-        return f"Рассылка №{self.pk} — {self.status}"
+        return f"Рассылка №{self.pk} — {self.current_status}"
 
     class Meta:
         verbose_name = "Рассылка"
         verbose_name_plural = "Рассылки"
+
+
+class MailingAttempt(models.Model):
+    STATUS_CHOICES = [
+        ("Успешно", "Успешно"),
+        ("Не успешно", "Не успешно"),
+    ]
+
+    mailing = models.ForeignKey(
+        Mailing,
+        on_delete=models.CASCADE,
+        related_name="attempts",
+        verbose_name="Рассылка",
+    )
+
+    client = models.ForeignKey(
+        Client,
+        on_delete=models.CASCADE,
+        related_name="mailing_attempts",
+        verbose_name="Получатель",
+    )
+
+    attempt_time = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Время попытки",
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        verbose_name="Статус отправки",
+    )
+
+    server_response = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Ответ почтового сервера",
+    )
+
+    def __str__(self):
+        return (
+            f"Рассылка №{self.mailing.pk} — "
+            f"{self.client.email} — {self.status}"
+        )
+
+    class Meta:
+        verbose_name = "Попытка отправки"
+        verbose_name_plural = "Попытки отправки"

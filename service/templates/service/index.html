@@ -1,18 +1,48 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Главная страница</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-<h1>Статистика рассылок</h1>
+{% block title %}Статистика рассылок — MailingList{% endblock %}
 
-<p>Общее количество рассылок: {{ total_mailings }}</p>
+{% block content %}
+<div class="container mt-4">
 
-<p>Количество активных рассылок: {{ active_mailings }}</p>
+    <h2 class="mb-4">Статистика рассылок</h2>
 
-<p>Количество клиентов: {{ total_clients }}</p>
+    <div class="row g-4">
 
-</body>
-</html>
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Общее количество рассылок</h5>
+                    <p class="display-5 fw-bold text-primary mb-0">
+                        {{ total_mailings }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Активные рассылки</h5>
+                    <p class="display-5 fw-bold text-success mb-0">
+                        {{ active_mailings }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Количество клиентов</h5>
+                    <p class="display-5 fw-bold text-info mb-0">
+                        {{ total_clients }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

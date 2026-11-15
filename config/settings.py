@@ -83,7 +83,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Yekaterinburg'
 
 USE_I18N = True
 
@@ -98,16 +98,32 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
-DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST_USER")
-
-SERVER_EMAIL = os.getenv("EMAIL_HOST_USER")
 
 LOGIN_URL = 'users:login'
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
 MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+    "default": {
+        "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
+        "OPTIONS": {
+            "host": "smtp.yandex.ru",
+            "port": 465,
+            "username": os.getenv("EMAIL_HOST_USER"),
+            "password": os.getenv("EMAIL_HOST_PASSWORD"),
+            "use_ssl": True,
+            "use_tls": False,
+            "timeout": 30,
+        },
     },
+}
+
+DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST_USER")
+SERVER_EMAIL = os.getenv("EMAIL_HOST_USER")
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+    }
 }
