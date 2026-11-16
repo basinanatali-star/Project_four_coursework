@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}Информация о рассылке — MailingList{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-9">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        Информация о рассылке №{{ object.pk }}
+                    </h4>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <h5 class="mb-3">Основная информация</h5>
+
+                    <p>
+                        <strong>Статус:</strong>
+                        <span class="badge bg-info">
+                            {{ object.status }}
+                        </span>
+                    </p>
+
+                    <p>
+                        <strong>Дата начала:</strong>
+                        {{ object.start_time|date:"d.m.Y H:i" }}
+                    </p>
+
+                    <p>
+                        <strong>Дата окончания:</strong>
+                        {{ object.end_time|date:"d.m.Y H:i" }}
+                    </p>
+
+                    <hr>
+
+                    <h5 class="mb-3">Сообщение</h5>
+
+                    <p>
+                        <strong>Тема письма:</strong>
+                        {{ object.message.topic }}
+                    </p>
+
+                    <div class="mb-3">
+                        <strong>Текст письма:</strong>
+                        <div class="border rounded p-3 mt-2">
+                            {{ object.message.text|linebreaks }}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h5 class="mb-3">Получатели</h5>
+
+                    {% if object.recipients.exists %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>№</th>
+                                        <th>Ф.И.О.</th>
+                                        <th>Email</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for client in object.recipients.all %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>
+                                                {{ client.username|default:"Не указано" }}
+                                            </td>
+                                            <td>{{ client.email }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            У этой рассылки пока нет получателей.
+                        </div>
+                    {% endif %}
+
+                    <hr>
+
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+
+                        <form method="post"
+                              action="{% url 'service:mailing_send' mailing_id=object.pk %}">
+                            {% csrf_token %}
+
+                            <button type="submit"
+                                    class="btn btn-success"
+                                    {% if not object.recipients.exists %}disabled{% endif %}>
+                                Отправить рассылку
+                            </button>
+                            </form>
+                                {% if user == mailing.owner %}
+                                    <a href="{% url 'service:mailing_update' mailing_id=mailing.pk %}"
+                                        class="btn btn-warning">
+                                         Изменить
+                                    </a>
+                                {% endif %}
+
+                                {% if mailing.owner_id == user.pk %}
+                                    <a href="{% url 'service:mailing_delete' mailing_id=object.pk %}"
+                                        class="btn btn-danger">
+                                            Удалить
+                                    </a>
+                                {% endif %}
+
+                        {% if user.groups.all %}
+                            {% for group in user.groups.all %}
+                                {% if group.name == "Менеджеры" and mailing.status != "Отключена" %}
+                                    <form method="post"
+                                        action="{% url 'service:mailing_disable' mailing.pk %}">
+                                        {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">
+                                        Отключить рассылку
+                                    </button>
+                                    </form>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        <a href="{% url 'service:mailings_list' %}"
+                           class="btn btn-outline-secondary">
+                            К списку рассылок
+                        </a>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

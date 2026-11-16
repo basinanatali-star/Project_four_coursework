@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Просмотр сообщения — MailingList{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+
+            <div class="card shadow-sm border-0 rounded-3">
+
+                <div class="card-header bg-white p-4 border-bottom">
+                    <h2 class="mb-1">
+                        Сообщение №{{ object.pk }}
+                    </h2>
+
+                    <p class="text-muted mb-0">
+                        Просмотр информации о сообщении
+                    </p>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <div class="mb-4">
+                        <label class="form-label text-muted fw-semibold">
+                            Тема письма
+                        </label>
+
+                        <div class="border rounded-3 p-3 bg-light">
+                            {{ object.topic|default:"Без темы" }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted fw-semibold">
+                            Текст сообщения
+                        </label>
+
+                        <div class="border rounded-3 p-3 bg-light">
+                            {% if object.text %}
+                                {{ object.text|linebreaks }}
+                            {% else %}
+                                <span class="text-muted">
+                                    Текст сообщения отсутствует.
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex flex-wrap gap-2">
+
+                        <a href="{% url 'service:message_update' message_id=object.pk %}"
+                           class="btn btn-warning rounded-3">
+                            Редактировать
+                        </a>
+
+                        <a href="{% url 'service:message_delete' message_id=object.pk %}"
+                           class="btn btn-danger rounded-3">
+                            Удалить
+                        </a>
+
+                        <a href="{% url 'service:messages_list' %}"
+                           class="btn btn-outline-secondary rounded-3">
+                            К списку сообщений
+                        </a>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+

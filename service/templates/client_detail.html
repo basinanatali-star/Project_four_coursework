@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Информация о клиенте — MailingList{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Информация о клиенте</h4>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <div class="mb-3">
+                        <strong>Ф.И.О.:</strong>
+                        <p class="mb-0">
+                            {{ object.username|default:"Не указано" }}
+                        </p>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-3">
+                        <strong>Email:</strong>
+                        <p class="mb-0">{{ object.email }}</p>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-3">
+                        <strong>Комментарий:</strong>
+                        <p class="mb-0">
+                            {{ object.comment|default:"Нет комментария" }}
+                        </p>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+
+                        {% if client.owner == request.user %}
+                            <a href="{% url 'service:client_update' client.pk %}"
+                                class="btn btn-warning">
+                                Изменить
+                            </a>
+                        {% endif %}
+
+                        {% if client.owner == request.user %}
+                            <a href="{% url 'service:client_delete' client.pk %}"
+                                class="btn btn-danger">
+                                Удалить
+                            </a>
+                        {% endif %}
+
+                        <a href="{% url 'service:clients_list' %}"
+                           class="btn btn-outline-secondary">
+                            К списку клиентов
+                        </a>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
