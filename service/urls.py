@@ -2,7 +2,8 @@ from django.urls import path
 from service.apps import ServiceConfig
 from service.views import ClientsListView, ClientCreateView, ClientDetailView, ClientUpdateView, ClientDeleteView, \
     HomeView, mailing_send_view, MailingDetailView, MailingListView, MessageListView, MessageCreateView, \
-    MessageDetailView, MessageUpdateView, MessageDeleteView, MailingCreateView, MailingDeleteView, ContactsView
+    MessageDetailView, MessageUpdateView, MessageDeleteView, MailingCreateView, MailingDeleteView, ContactsView, \
+    mailing_statistics_view, users_list_view, user_block_view, mailing_disable_view, MailingUpdateView
 
 app_name = ServiceConfig.name
 
@@ -22,7 +23,11 @@ urlpatterns = [
     path("mailings/create/", MailingCreateView.as_view(), name="mailing_create"),
     path("mailings/<int:mailing_id>/send/", mailing_send_view, name="mailing_send"),
     path("mailings/<int:mailing_id>/", MailingDetailView.as_view(), name="mailing_detail"),
+    path("mailings/<int:mailing_id>/update/", MailingUpdateView.as_view(), name="mailing_update"),
     path("mailings/<int:mailing_id>/delete/", MailingDeleteView.as_view(), name="mailing_delete"),
     path("contacts/", ContactsView.as_view(), name="contacts"),
-
+    path("statistics/", mailing_statistics_view, name="statistics"),
+    path("users/", users_list_view, name="users_list"),
+    path("users/<int:user_id>/block/", user_block_view, name="user_block"),
+    path("mailings/<int:mailing_id>/disable/", mailing_disable_view, name="mailing_disable"),
 ]

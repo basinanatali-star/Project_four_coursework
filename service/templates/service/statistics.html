@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Статистика рассылок — MailingList{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+
+    <h2 class="mb-4">Статистика рассылок</h2>
+
+    <p class="text-muted">
+        Здесь отображаются результаты отправки сообщений
+        по вашим рассылкам.
+    </p>
+
+    <div class="row g-4">
+
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">
+                        Успешные попытки
+                    </h5>
+
+                    <h2 class="text-success">
+                        {{ statistics.successful_attempts }}
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">
+                        Неуспешные попытки
+                    </h5>
+
+                    <h2 class="text-danger">
+                        {{ statistics.unsuccessful_attempts }}
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">
+                        Отправленные сообщения
+                    </h5>
+
+                    <h2 class="text-primary">
+                        {{ statistics.sent_messages }}
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'service:index' %}"
+           class="btn btn-outline-secondary">
+            На главную
+        </a>
+    </div>
+
+</div>
+{% endblock %}

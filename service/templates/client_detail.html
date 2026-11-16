@@ -42,15 +42,19 @@
 
                     <div class="d-flex flex-wrap gap-2 mt-4">
 
-                        <a href="{% url 'service:client_update' client_id=object.pk %}"
-                           class="btn btn-warning">
-                            Изменить
-                        </a>
+                        {% if client.owner == request.user %}
+                            <a href="{% url 'service:client_update' client.pk %}"
+                                class="btn btn-warning">
+                                Изменить
+                            </a>
+                        {% endif %}
 
-                        <a href="{% url 'service:client_delete' client_id=object.pk %}"
-                           class="btn btn-danger">
-                            Удалить
-                        </a>
+                        {% if client.owner == request.user %}
+                            <a href="{% url 'service:client_delete' client.pk %}"
+                                class="btn btn-danger">
+                                Удалить
+                            </a>
+                        {% endif %}
 
                         <a href="{% url 'service:clients_list' %}"
                            class="btn btn-outline-secondary">

@@ -44,9 +44,9 @@ class Client(models.Model):
 
 
 class Message(models.Model):
-    topic = models.CharField(max_length=150, verbose_name='Тема письма',
+    topic = models.CharField(max_length=150, verbose_name='Тема письма', blank=True, null=True,
                              help_text="Пожалуйста, введите тему сообщения")
-    text = models.TextField(max_length=255, verbose_name="Тело письма",
+    text = models.TextField(max_length=255, verbose_name="Тело письма", blank=True, null=True,
                             help_text="Пожалуйста, введите текст Вашего сообщения")
 
     def __str__(self):
@@ -58,10 +58,20 @@ class Message(models.Model):
 
 
 class Mailing(models.Model):
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="mailings",
+        verbose_name="Владелец",
+        null=True,
+        blank=True,
+    )
+
     STATUS_CHOICES = [
         ("Создана", "Создана"),
         ("Запущена", "Запущена"),
         ("Завершена", "Завершена"),
+        ("Отключена", "Отключена"),
     ]
 
     start_time = models.DateTimeField(
@@ -107,6 +117,10 @@ class Mailing(models.Model):
     @property
     def current_status(self):
         """Возвращает актуальный статус рассылки."""
+
+        if self.status == "Отключена":
+            return "Отключена"
+
         now = timezone.now()
 
         if now < self.start_time:
@@ -118,6 +132,9 @@ class Mailing(models.Model):
 
     def update_status(self):
         """Сохраняет актуальный статус в базе данных."""
+        if self.status == "Отключена":
+            return
+
         new_status = self.current_status
 
         if self.status != new_status:
